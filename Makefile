@@ -38,7 +38,7 @@ BINNAME=run_1D
 MAIN=main.f90
 
 # "List" of all obj files
-OBJ_LIST=constants.f90 bounds.f90 repeated_routines.f90 Maxwell_1D.f90 m_diag.f90 lambda_diag.f90 psi.f90 es_bgk_1D.f90 density.f90 xvelocity.f90 yvelocity.f90 zvelocity.f90 temp.f90 visc_str_xx.f90 visc_str_xy.f90 heat_flux_x.f90 krookcoll_1D.f90 krookcoll_1D_hs.f90 convect.f90
+OBJ_LIST=constants.f90 bounds.f90 repeated_routines.f90 Maxwell_1D.f90 m_diag.f90 lambda_diag.f90 psi.f90 es_bgk_1D.f90 density.f90 xvelocity.f90 yvelocity.f90 zvelocity.f90 temp.f90 visc_str_xx.f90 visc_str_xy.f90 heat_flux_x.f90 heat_flux_y.f90 heat_flux_z.f90 pressure.f90 krookcoll_1D.f90 krookcoll_1D_hs.f90 convect.f90
 SRC=$(addprefix $(OBJ_DIR)/, $(OBJ_LIST))
 OBJ=$(patsubst $(OBJ_DIR)/%.f90, $(OBJ_DIR)/%.o, $(SRC))
 LIB=$(patsubst %, $(LIB_DIR)/lib%.a, $(LIBNAME))
