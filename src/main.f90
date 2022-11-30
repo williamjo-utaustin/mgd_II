@@ -11,18 +11,18 @@ double precision, parameter :: betav = 0.7D0    ! scaled velocity space between 
 double precision, parameter :: deltat = 0.05D0  !scaled discrete timestep
 
 double precision, parameter :: ndf = 1D0        ! scaled freestream density
-double precision, parameter :: uf = -2D0        ! scaled freestream velocity
+double precision, parameter :: uf = -1D0        ! scaled freestream velocity
 double precision, parameter :: Tf = 1D0         ! scaled freestream temperature
 
 integer, parameter :: ntstep = 1000     ! number of timesteps
-integer, parameter :: nsplot = 25       ! location of phi to be plotted
+integer, parameter :: nsplot = 81       ! location of phi to be plotted
 
-logical, parameter :: bgk_reg = .False. ! turn on BGK Regular Mode
+logical, parameter :: bgk_reg = .True. ! turn on BGK Regular Mode
 logical, parameter :: bgk_hs = .False. ! turn on BGK for Hard Spheres
-logical, parameter :: es_bgk = .True. ! turn on ES-BGK
+logical, parameter :: es_bgk = .False. ! turn on ES-BGK
 
-double precision, allocatable, dimension(:) :: nd, ux, vy, wz, T, tauxx, tauxy, qx
-double precision, allocatable, dimension(:,:) :: ndm, uxm, vym, Tm, tauxxm, tauxym, qxm
+double precision, allocatable, dimension(:) :: nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz
+double precision, allocatable, dimension(:,:) :: ndm, uxm, vym, Tm, tauxxm, tauxym, qxm, qym, qzm
 
 ! create allocatable arrays 
 double precision, allocatable, dimension (:,:,:) :: phif
@@ -61,6 +61,8 @@ allocate(T(500))
 allocate(tauxx(500)) 
 allocate(tauxy(500)) 
 allocate(qx(500)) 
+allocate(qy(500)) 
+allocate(qz(500)) 
 allocate(ndm(500,11))
 allocate(uxm(500,11))
 allocate(vym(500,11))
@@ -68,6 +70,8 @@ allocate(Tm(500,11))
 allocate(tauxxm(500,11))
 allocate(tauxym(500,11))
 allocate(qxm(500,11))
+allocate(qym(500,11))
+allocate(qzm(500,11))
 
 
 if(write2file.eqv..True.) then
@@ -151,7 +155,7 @@ if(write2file.eqv..True.) then
         else
                 file_status = "new"
         end if
-        open(unit = 219, file = file_output, form = "formatted", & 
+        open(unit = 19, file = file_output, form = "formatted", & 
                 status = file_status, action = "write")
         
         write(file_output, 220)
@@ -161,7 +165,27 @@ if(write2file.eqv..True.) then
         else
                 file_status = "new"
         end if
-        open(unit = 220, file = file_output, form = "formatted", & 
+        open(unit = 20, file = file_output, form = "formatted", & 
+                status = file_status, action = "write")
+        
+        write(file_output, 221)
+        inquire(file = file_output, exist = file_exist)
+        if(file_exist.eqv..True.) then
+                file_status = "replace"
+        else
+                file_status = "new"
+        end if
+        open(unit = 21, file = file_output, form = "formatted", & 
+                status = file_status, action = "write")
+        
+        write(file_output, 222)
+        inquire(file = file_output, exist = file_exist)
+        if(file_exist.eqv..True.) then
+                file_status = "replace"
+        else
+                file_status = "new"
+        end if
+        open(unit = 22, file = file_output, form = "formatted", & 
                 status = file_status, action = "write")
 
 end if
@@ -175,6 +199,8 @@ end if
 218 FORMAT("../output/Tau_xx.dat")
 219 FORMAT("../output/Tau_xy.dat")
 220 FORMAT("../output/Q_x.dat")
+221 FORMAT("../output/Q_y.dat")
+222 FORMAT("../output/Q_z.dat")
 
 if(nspace.gt.500) then
         write(6,9003) nspace
@@ -214,54 +240,42 @@ call cpu_time(t_start)
 
 ! Initialize phif from input conditions density (ndf), velocity (uf), temperature (Tf), output nondimensionalized distribution phif.
 ! Note that phif is in 3 dimensions (x,y,z)
-
 call maxwell_1D(betav, ndf, uf, Tf, phif)
-
 
 ! Initialize the flowfeld with phif for ns = 1 to 100
 do ns = 1, nspace
         phi(:,:,:,ns) = phif
 end do
 
-! output i, j, and phi at 0 at nsplot = 25
-!do k = ivzmin, ivzmax
-!        do j = ivymin, ivymax
-!                do i = ivxmin, ivxmax
-!                        write(6,2000) i, j, k, phi(i,j,k,nsplot)
-!                end do
-!        end do
-!end do
-!
-2000 format(2i4,2x,1pe15.6)
+! Write out the initial 2D Slice of Distribution function at physical space point
+
+do j = ivymin, ivymax
+        do i = ivxmin, ivxmax
+                write(12,2000) i, j, phi(i,j,0,nsplot)
+        end do
+end do
+
+close(12)
+
+2000 format(2(i4,','),es14.6)
 
 
 
 !  Begin solution of BGK Equation
-
 do ntime = 1, ntstep
 
         ! compute from phi the number density, velocity in x, y, z, temp, stresses, and heat transfer.
         ! array size will be 500 but will only need 100.
-        call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx)
+        call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz)
         
-        write(6,*) ntime,"ux", ux(1:100)
-        pause
-        !write(6,*) "vy", vy
-        !write(6,*) "wz", wz
-        !write(6,*) "T", T
-        !write(6,*) "tauxx", tauxx
-        !write(6,*) "tauxy", tauxy
-        !write(6,*) "qx", qx
-      
         ! if the count = 10 then store the data on a matrix at that timestep 
-        ! this is stupid
         if(ipcount.eq.npr) then
                 
                 ! store data on matrix
                 do ns = 1, nspace
                         
                         call prop_matrices(ns, ipindx, nd, ndm, ux, uxm, vy, vym, T, Tm, &
-                                tauxx, tauxxm, tauxy, tauxym, qx, qxm)
+                                tauxx, tauxxm, tauxy, tauxym, qx, qxm, qy, qym, qz, qzm)
 
                 end do
 
@@ -290,12 +304,17 @@ do ntime = 1, ntstep
                 call es_bgk_1D(deltat, nd, psi, phi)
         end if
 
-        if(ntime.eq.(ntstep/2)) then
+        if(ntime.eq.ntstep) then
+                write(13,*) "# Plot Location: x = ", dble(nsplot-1) * alphax
+                write(13,*) "# Plot Time: t = ", (ntime) * deltat
+                
                 do j = ivymin, ivymax
                         do i = ivxmin, ivxmax
                                 write(13,2000) i, j, phi(i, j, 0, nsplot)
                         end do
                 end do
+
+                close(13)
         end if
 
         call convect(alphax, betav, deltat, phif, phi)
@@ -310,19 +329,19 @@ do j = ivymin, ivymax
         end do
 end do
 
-call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx)
+call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz)
 
 do ns = 1, nspace
         call prop_matrices(ns, ipindx, nd, ndm, ux, uxm, vy, vym, T, Tm, tauxx, tauxxm, & 
-                tauxy, tauxym, qx, qxm)
+                tauxy, tauxym, qx, qxm, qy, qym, qz, qzm)
 end do
 call cpu_time(t_end)
 t_exec = t_end - t_start
 
 do ipr = 1, ipindx - 1
-        timestamp(ipr) = float(ipr - 1) * npr * deltat
+        timestamp(ipr) = dble(ipr - 1) * npr * deltat
 end do
-timestamp(ipindx) = float(ntstep) * deltat
+timestamp(ipindx) = dble(ntstep) * deltat
 write(6,*) t_exec
 
 write(*,3900) alphax,betav,deltat,ndf,uf,Tf,t_exec
@@ -341,6 +360,8 @@ write(17,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec
 write(18,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec
 write(19,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec
 write(20,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec
+write(21,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec
+write(22,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec
 
 write(15,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
 write(16,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
@@ -348,6 +369,8 @@ write(17,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
 write(18,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
 write(19,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
 write(20,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
+write(21,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
+write(22,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
 
 
 write(15,4001)(timestamp(ipr),ipr = 1, ipindx)
@@ -356,20 +379,24 @@ write(17,4001)(timestamp(ipr),ipr = 1, ipindx)
 write(18,4001)(timestamp(ipr),ipr = 1, ipindx)
 write(19,4001)(timestamp(ipr),ipr = 1, ipindx)
 write(20,4001)(timestamp(ipr),ipr = 1, ipindx)
+write(21,4001)(timestamp(ipr),ipr = 1, ipindx)
+write(22,4001)(timestamp(ipr),ipr = 1, ipindx)
 
 4001 format('x',', ',11('t= ',f8.1,",",1x))          
 
 do ns = 1, nspace
-        xx=float(ns-1) * alphax
+        xx=dble(ns-1) * alphax
         write(15,4002) xx,(ndm(ns,ipr),ipr=1,ipindx)
         write(16,4002) xx,(uxm(ns,ipr),ipr=1,ipindx)
         write(17,4002) xx,(Tm(ns,ipr),ipr=1,ipindx)
         write(18,4002) xx,(tauxxm(ns,ipr),ipr=1,ipindx)
         write(19,4002) xx,(tauxym(ns,ipr),ipr=1,ipindx)
         write(20,4002) xx,(qxm(ns,ipr),ipr=1,ipindx)
+        write(21,4002) xx,(qym(ns,ipr),ipr=1,ipindx)
+        write(22,4002) xx,(qzm(ns,ipr),ipr=1,ipindx)
 end do
 
-4002 format(12(f12.6,",",3x))
+4002 format(12(es14.6,",",3x))
 
 
 close(15)
@@ -378,6 +405,8 @@ close(17)
 close(18)
 close(19)
 close(20)
+close(21)
+close(22)
 
 
 
@@ -392,6 +421,8 @@ deallocate(T)
 deallocate(tauxx)
 deallocate(tauxy)
 deallocate(qx)
+deallocate(qy)
+deallocate(qz)
 
 deallocate(ndm)
 deallocate(uxm)
@@ -400,5 +431,7 @@ deallocate(Tm)
 deallocate(tauxxm)
 deallocate(tauxym)
 deallocate(qxm)
+deallocate(qym)
+deallocate(qzm)
 
 end program main
