@@ -6,9 +6,9 @@ use bounds
 implicit none
 
 double precision, intent(in), dimension(500) :: T
-double precision, intent(in), dimension(nspace,3) :: M_ij
+double precision, intent(in), dimension(500,3) :: M_ij
 
-double precision, intent(out), dimension(nspace,3) :: lambda_ij
+double precision, intent(out), dimension(500,3) :: lambda_ij
 integer :: ns, i
 double precision :: lam_esbgk
 
@@ -16,7 +16,7 @@ lam_esbgk = -0.5D0
 
 !lambda_esbgk = -0.5 (stored in constants)
 
-do ns = 1, nspace
+do ns = 1, 500
         
         do i = 1, 3
                 

@@ -13,7 +13,7 @@ subroutine krookcoll_1D_hs(dens, xvel, yvel, zvel, temp, betav, deltat, phi)
         integer :: i, j, k, ns
 
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 normfac = dens(ns)/sqrt((2D0 * pi * temp(ns))**3)
                 T_denom = 0.5/temp(ns)
@@ -31,7 +31,7 @@ subroutine krookcoll_1D_hs(dens, xvel, yvel, zvel, temp, betav, deltat, phi)
                                         Csq = Cxsq + Cysq + Czsq
 
                                         phieq = normfac * exp(-Csq * T_denom)
-                                        delphi = deltat * (16D0/(5D0*sqrt(pi))) * dens(ns) * sqrt(temp(ns)) * & 
+                                        delphi = deltat * (8D0/5D0) * sqrt(2D0/pi) * dens(ns) * sqrt(temp(ns)) * & 
                                                 (phieq - phi(i,j,k,ns))
                                         phi(i,j,k,ns) = phi(i,j,k,ns) + delphi
 

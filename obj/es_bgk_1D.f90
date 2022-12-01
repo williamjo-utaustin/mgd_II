@@ -13,7 +13,7 @@ subroutine es_bgk_1D(deltat, nd, psi, phi)
         integer :: i, j, k, ns
         double precision :: delphi
         
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 do k = ivzmin, ivzmax
 

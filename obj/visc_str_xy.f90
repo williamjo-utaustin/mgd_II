@@ -14,7 +14,7 @@ subroutine visc_str_xy(betav, phi, xvel, yvel, tauxy)
         
         betacub = betav**3D0
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 tauxy(ns) = 0D0
 

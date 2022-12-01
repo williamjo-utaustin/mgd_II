@@ -14,7 +14,7 @@ subroutine heat_flux_y(betav, phi, xvel, yvel, zvel, qy)
         
         betacub = betav**3D0
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 qy(ns) = 0D0
 

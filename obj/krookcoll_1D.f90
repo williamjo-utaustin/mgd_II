@@ -13,7 +13,7 @@ subroutine krookcoll_1D(dens, xvel, yvel, zvel, temp, betav, deltat, phi)
         integer :: i, j, k, ns
 
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 normfac = dens(ns)/sqrt((2D0 * pi * temp(ns))**3)
                 T_denom = 0.5/temp(ns)

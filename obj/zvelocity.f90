@@ -16,7 +16,7 @@ subroutine zvelocity(betav, phi, nd, zvel)
         
         betacub = betav**3
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 zvel(ns) = 0
 

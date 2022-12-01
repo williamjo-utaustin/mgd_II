@@ -1,21 +1,24 @@
 subroutine compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p)
 
+        use bounds
+        use constants
+
         implicit none
         double precision :: betav
         double precision, dimension(-15:15,-15:15,-15:15, 500) :: phi
         double precision, dimension(500) :: nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p
 
-        call density(betav, phi, nd)
-        call xvelocity(betav, phi, nd, ux)
-        call yvelocity(betav, phi, nd, vy)
-        call zvelocity(betav, phi, nd, wz)
-        call temp(betav, phi, nd, ux, T)
-        call visc_str_xx(betav, phi, ux, vy, wz, tauxx)
-        call visc_str_xy(betav, phi, ux, vy, tauxy)
-        call heat_flux_x(betav, phi, ux, vy, wz, qx)        
-        call heat_flux_y(betav, phi, ux, vy, wz, qy)        
-        call heat_flux_z(betav, phi, ux, vy, wz, qz)        
-        call pressure(nd, T, p)
+        call density(betav, phi, nd, nspace)
+        call xvelocity(betav, phi, nd, ux, nspace)
+        call yvelocity(betav, phi, nd, vy, nspace)
+        call zvelocity(betav, phi, nd, wz, nspace)
+        call temp(betav, phi, nd, ux, T, nspace)
+        call visc_str_xx(betav, phi, ux, vy, wz, tauxx, nspace)
+        call visc_str_xy(betav, phi, ux, vy, tauxy, nspace)
+        call heat_flux_x(betav, phi, ux, vy, wz, qx, nspace)        
+        call heat_flux_y(betav, phi, ux, vy, wz, qy, nspace)        
+        call heat_flux_z(betav, phi, ux, vy, wz, qz, nspace)        
+        call pressure(nd, T, p, nspace)
 end subroutine compute
 
 

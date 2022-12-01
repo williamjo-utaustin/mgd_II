@@ -9,14 +9,13 @@ subroutine xvelocity(betav, phi, nd, xvel)
         double precision, intent(in), dimension(500) :: nd
         double precision, intent(inout), dimension(500) :: xvel
 
-
         integer :: i, j, k, ns
         double precision :: betacub
 
         
         betacub = betav**3
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 xvel(ns) = 0
 

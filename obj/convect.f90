@@ -16,7 +16,7 @@ subroutine convect(alphax, betav, deltat, phif, phi)
 
         cfl = betav * deltat/alphax
 
-        do ns = 2, nspace-1
+        do ns = 2, 500-1
                 do k = ivzmin, ivzmax
 
                         do j = ivymin, ivymax
@@ -62,11 +62,11 @@ subroutine convect(alphax, betav, deltat, phif, phi)
         do k=ivzmin,ivzmax
                 do j=ivymin,ivymax
                         do i=ivxmin,0
-                                phi1(i,j,k,nspace) = phif(i,j,k)
+                                phi1(i,j,k,500) = phif(i,j,k)
                         end do
                         do i = 1, ivxmax
-                                delphi = cfl * dble(i) * (phi(i,j,k,nspace) - phi(i,j,k,nspace-1))
-                                phi1(i,j,k,nspace) = phi(i,j,k,nspace) - delphi
+                                delphi = cfl * dble(i) * (phi(i,j,k,500) - phi(i,j,k,500-1))
+                                phi1(i,j,k,500) = phi(i,j,k,500) - delphi
                         end do
 
                 end do
@@ -74,7 +74,7 @@ subroutine convect(alphax, betav, deltat, phif, phi)
         end do
 
         ! Update dist funct at all poionts after convectionstep except for i = 0
-        do ns = 1, nspace
+        do ns = 1, 500
                 do k = ivzmin, ivzmax
                         do j = ivymin, ivymax
                                 do i = ivxmin, -1

@@ -10,7 +10,7 @@ subroutine pressure(nd, T, p)
 
     integer :: ns
 
-    do ns = 1, nspace
+    do ns = 1, 500
 
         p(ns) = nd(ns) * T(ns)
 

@@ -11,14 +11,14 @@ double precision, parameter :: betav = 0.7D0    ! scaled velocity space between 
 double precision, parameter :: deltat = 0.05D0  !scaled discrete timestep
 
 double precision, parameter :: ndf = 1D0        ! scaled freestream density
-double precision, parameter :: uf = -2D0        ! scaled freestream velocity
+double precision, parameter :: uf = -1D0        ! scaled freestream velocity
 double precision, parameter :: Tf = 1D0         ! scaled freestream temperature
 
 integer, parameter :: ntstep = 1000     ! number of timesteps
-integer, parameter :: nsplot = 81       ! location of phi to be plotted
+integer, parameter :: nsplot = 500       ! location of phi to be plotted
 
-logical, parameter :: bgk_reg = .False. ! turn on BGK Regular Mode
-logical, parameter :: bgk_hs = .True. ! turn on BGK for Hard Spheres
+logical, parameter :: bgk_reg = .True. ! turn on BGK Regular Mode
+logical, parameter :: bgk_hs = .False. ! turn on BGK for Hard Spheres
 logical, parameter :: es_bgk = .False. ! turn on ES-BGK
 
 double precision, allocatable, dimension(:) :: nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p
@@ -277,10 +277,21 @@ close(12)
 !  Begin solution of BGK Equation
 do ntime = 1, ntstep
 
+
         ! compute from phi the number density, velocity in x, y, z, temp, stresses, and heat transfer.
         ! array size will be 500 but will only need 100.
-        call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p)
-        
+        !call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p)
+        call density(betav, phi, nd)
+        call xvelocity(betav, phi, nd, ux)
+        call yvelocity(betav, phi, nd, vy)
+        call zvelocity(betav, phi, nd, wz)
+        call temp(betav, phi, nd, ux, T)
+        call visc_str_xx(betav, phi, ux, vy, wz, tauxx)
+        call visc_str_xy(betav, phi, ux, vy, tauxy)
+        call heat_flux_x(betav, phi, ux, vy, wz, qx)        
+        call heat_flux_y(betav, phi, ux, vy, wz, qy)        
+        call heat_flux_z(betav, phi, ux, vy, wz, qz)        
+        call pressure(nd, T, p)
         ! if the count = 10 then store the data on a matrix at that timestep 
         if(ipcount.eq.npr) then
                 
@@ -345,9 +356,13 @@ end do
 call compute(betav, phi, nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p)
 
 do ns = 1, nspace
+
         call prop_matrices(ns, ipindx, nd, ndm, ux, uxm, vy, vym, T, Tm, tauxx, tauxxm, & 
                 tauxy, tauxym, qx, qxm, qy, qym, qz, qzm, p, pm)
 end do
+
+
+
 call cpu_time(t_end)
 t_exec = t_end - t_start
 
@@ -360,11 +375,11 @@ write(6,*) t_exec
 write(*,3900) alphax,betav,deltat,ndf,uf,Tf,t_exec
 write(*,3901)vxmax,vxmin,vymax,vymin,vzmax,vzmin
 
-3900 format('alpha(x) = ',f6.3,2x,'beta(v) = ',f6.3,2x, 'delta (t) =', f6.3, &
-     'Free stream: density = ',f6.3,2x, 'velocity = ',f6.3,2x,'temperature = ',f6.3, 2x, & 
-     'Execution time = ',f8.2, ' s')
+3900 format('#alpha(x) = ',f6.3,2x,'beta(v) = ',f6.3,2x, 'delta (t) =', f6.3, &
+     '#Free stream: density = ',f6.3,2x, 'velocity = ',f6.3,2x,'temperature = ',f6.3, 2x, & 
+     '#Execution time = ',f8.2, ' s')
 
-3901 format('vxmax=',f7.2,2x,'vxmin=',f7.2,2x,'vymax=',f7.2,2x,'vymin=', & 
+3901 format('#vxmax=',f7.2,2x,'vxmin=',f7.2,2x,'vymax=',f7.2,2x,'vymin=', & 
         f7.2,2x,'vzmax=',f7.2,2x,'vzmin=',f7.2,2x)
 
 write(15,3900)alphax,betav,deltat,ndf,uf,Tf,t_exec

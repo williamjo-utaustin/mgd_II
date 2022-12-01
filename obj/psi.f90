@@ -7,7 +7,7 @@ implicit none
 
 double precision, intent(in) :: betav
 double precision, intent(in), dimension(500) :: nd, xvel, yvel, zvel
-double precision, intent(in), dimension(nspace, 3) :: lambda_ij
+double precision, intent(in), dimension(500, 3) :: lambda_ij
 double precision, intent(out), dimension(-15:15, -15:15, -15:15, 500) :: psi
 
 
@@ -15,7 +15,7 @@ double precision, intent(out), dimension(-15:15, -15:15, -15:15, 500) :: psi
 integer :: ns, i, j, k
 double precision :: Ci_Eij_Cj, det_lambda, Cxsq, Cysq, Czsq
 
-do ns = 1, nspace
+do ns = 1, 500
 
         det_lambda = lambda_ij(ns,1) * lambda_ij(ns,2) *lambda_ij(ns,3)
         

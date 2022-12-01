@@ -9,7 +9,7 @@ double precision, intent(in), dimension(500) :: nd, xvel, yvel, zvel
 double precision, intent(in) :: betav
 double precision, intent(in), dimension(-15:15, -15:15, -15:15, 500) :: phi
 
-double precision, intent(out), dimension(nspace,3) :: M_ij
+double precision, intent(out), dimension(500,3) :: M_ij
 
 integer :: i, j, k, ns
 double precision :: Cxsq, Cysq, Czsq, betavcubed
@@ -17,7 +17,7 @@ double precision :: Cxsq, Cysq, Czsq, betavcubed
 M_ij = 0
 betavcubed = betav**3
 
-do ns = 1, nspace
+do ns = 1, 500
         
         do k = ivzmin, ivzmax
 

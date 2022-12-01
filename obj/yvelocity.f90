@@ -16,7 +16,7 @@ subroutine yvelocity(betav, phi, nd, yvel)
         
         betacub = betav**3
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 yvel(ns) = 0
 

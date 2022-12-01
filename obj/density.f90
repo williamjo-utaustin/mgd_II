@@ -8,14 +8,15 @@ subroutine density(betav, phi, nd)
         double precision, intent(in), dimension(-15:15, -15:15, -15:15, 500) :: phi
         double precision, intent(out), dimension(500) :: nd
 
-
+        integer :: nspace_hardcode
         integer :: i, j, k, ns
         double precision :: betacub
 
-        
         betacub = betav**3
 
-        do ns = 1, nspace
+        nspace_hardcode = 500
+
+        do ns = 1, nspace_hardcode
 
                 nd(ns) = 0
 
@@ -31,5 +32,6 @@ subroutine density(betav, phi, nd)
                         end do
                 end do
                 nd(ns) = nd(ns) * betacub
+                
         end do
 end subroutine density

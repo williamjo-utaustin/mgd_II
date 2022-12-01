@@ -16,7 +16,7 @@ subroutine temp(betav, phi, dens, xvel,Tcal)
         betasq = betav**2D0
         betacub = betav**3D0
 
-        do ns = 1, nspace
+        do ns = 1, 500 
 
                 Tcal(ns) = 0D0
 

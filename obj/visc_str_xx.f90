@@ -14,7 +14,7 @@ subroutine visc_str_xx(betav, phi, xvel, yvel, zvel, tauxx)
         
         betacub = betav**3D0
 
-        do ns = 1, nspace
+        do ns = 1, 500
 
                 tauxx(ns) = 0D0
 
