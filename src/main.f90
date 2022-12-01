@@ -15,11 +15,13 @@ double precision, parameter :: uf = -1D0        ! scaled freestream velocity
 double precision, parameter :: Tf = 1D0         ! scaled freestream temperature
 
 integer, parameter :: ntstep = 1000     ! number of timesteps
-integer, parameter :: nsplot = 500       ! location of phi to be plotted
+integer, parameter :: nsplot = 80       ! location of phi to be plotted
+integer, parameter :: nsplot2 = 90       ! location of phi to be plotted
+integer, parameter :: nsplot3 = 100       ! location of phi to be plotted
 
-logical, parameter :: bgk_reg = .True. ! turn on BGK Regular Mode
+logical, parameter :: bgk_reg = .False. ! turn on BGK Regular Mode
 logical, parameter :: bgk_hs = .False. ! turn on BGK for Hard Spheres
-logical, parameter :: es_bgk = .False. ! turn on ES-BGK
+logical, parameter :: es_bgk = .True. ! turn on ES-BGK
 
 double precision, allocatable, dimension(:) :: nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p
 double precision, allocatable, dimension(:,:) :: ndm, uxm, vym, Tm, tauxxm, tauxym, qxm, qym, qzm, pm
@@ -97,6 +99,26 @@ if(write2file.eqv..True.) then
                 file_status = "new"
         end if
         open(unit = 13, file = file_output, form = "formatted", & 
+                status = file_status, action = "write")
+        
+        write(file_output, 2132)
+        inquire(file = file_output, exist = file_exist)
+        if(file_exist.eqv..True.) then
+                file_status = "replace"
+        else
+                file_status = "new"
+        end if
+        open(unit = 132, file = file_output, form = "formatted", & 
+                status = file_status, action = "write")
+        
+        write(file_output, 2133)
+        inquire(file = file_output, exist = file_exist)
+        if(file_exist.eqv..True.) then
+                file_status = "replace"
+        else
+                file_status = "new"
+        end if
+        open(unit = 133, file = file_output, form = "formatted", & 
                 status = file_status, action = "write")
 
         
@@ -204,6 +226,8 @@ end if
 
 212 FORMAT("../output/phistart.dat")
 213 FORMAT("../output/phimid.dat")
+2132 FORMAT("../output/phi2.dat")
+2133 FORMAT("../output/phi3.dat")
 214 FORMAT("../output/phiend.dat")
 215 FORMAT("../output/Dprof.dat")
 216 FORMAT("../output/Uprof.dat")
@@ -328,7 +352,7 @@ do ntime = 1, ntstep
                 call es_bgk_1D(deltat, nd, psi, phi)
         end if
 
-        if(ntime.eq.ntstep) then
+        if(ntime.eq.800) then
                 write(13,*) "# Plot Location: x = ", dble(nsplot-1) * alphax
                 write(13,*) "# Plot Time: t = ", (ntime) * deltat
                 
@@ -339,6 +363,33 @@ do ntime = 1, ntstep
                 end do
 
                 close(13)
+        end if
+        
+        if(ntime.eq.800) then
+                write(132,*) "# Plot Location: x = ", dble(nsplot2-1) * alphax
+                write(132,*) "# Plot Time: t = ", (ntime) * deltat
+                
+                do j = ivymin, ivymax
+                        do i = ivxmin, ivxmax
+                                write(132,2000) i, j, phi(i, j, 0, nsplot2)
+                        end do
+                end do
+
+                close(132)
+        end if
+
+
+        if(ntime.eq.800) then
+                write(133,*) "# Plot Location: x = ", dble(nsplot3-1) * alphax
+                write(133,*) "# Plot Time: t = ", (ntime) * deltat
+                
+                do j = ivymin, ivymax
+                        do i = ivxmin, ivxmax
+                                write(133,2000) i, j, phi(i, j, 0, nsplot3)
+                        end do
+                end do
+
+                close(133)
         end if
 
         call convect(alphax, betav, deltat, phif, phi)
