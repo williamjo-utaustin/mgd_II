@@ -19,9 +19,9 @@ integer, parameter :: nsplot = 80       ! location of phi to be plotted
 integer, parameter :: nsplot2 = 90       ! location of phi to be plotted
 integer, parameter :: nsplot3 = 100       ! location of phi to be plotted
 
-logical, parameter :: bgk_reg = .False. ! turn on BGK Regular Mode
+logical, parameter :: bgk_reg = .True. ! turn on BGK Regular Mode
 logical, parameter :: bgk_hs = .False. ! turn on BGK for Hard Spheres
-logical, parameter :: es_bgk = .True. ! turn on ES-BGK
+logical, parameter :: es_bgk = .False. ! turn on ES-BGK
 
 double precision, allocatable, dimension(:) :: nd, ux, vy, wz, T, tauxx, tauxy, qx, qy, qz, p
 double precision, allocatable, dimension(:,:) :: ndm, uxm, vym, Tm, tauxxm, tauxym, qxm, qym, qzm, pm
